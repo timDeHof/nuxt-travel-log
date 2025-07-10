@@ -19,14 +19,14 @@ const isDark = computed({
     <!-- sun icon -->
     <Icon
       name="tabler:sun-filled"
-      class="swap-on"
+      class="swap-off"
       size="24"
     />
 
     <!-- moon icon -->
     <Icon
       name="tabler:moon-filled"
-      class="swap-off"
+      class="swap-on"
       size="24"
     />
   </label>
