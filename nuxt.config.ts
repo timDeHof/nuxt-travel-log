@@ -3,7 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/icon'],
+  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/color-mode'],
   devtools: { enabled: true },
   compatibilityDate: '2024-11-01',
   css: ['~/assets/css/main.css'],
@@ -16,5 +16,8 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
     ]
+  },
+  colorMode: {
+    dataValue: 'theme',
   }
 })
