@@ -23,8 +23,10 @@ logs
 .env.*
 !.env.example
 
-local.db*
 
 docker-data
 # Sentry Config File
 .env.sentry-build-plugin
+
+# local turso db
+local.db*
