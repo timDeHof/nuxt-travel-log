@@ -3,7 +3,14 @@ import { defineNuxtConfig } from 'nuxt/config'
 import tailwindcss from '@tailwindcss/vite'
 import "./lib/env"
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/color-mode', '@pinia/nuxt'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/icon',
+    '@nuxtjs/color-mode',
+    '@pinia/nuxt',
+    '@vee-validate/nuxt',
+    'nuxt-csurf'
+  ],
   devtools: { enabled: true },
   compatibilityDate: '2024-11-01',
   css: ['~/assets/css/main.css'],
@@ -19,5 +26,5 @@ export default defineNuxtConfig({
   },
   colorMode: {
     dataValue: 'theme',
-  }
+  },
 })
