@@ -9,6 +9,7 @@ import { InsertLocationSchema } from "~/lib/db/schema";
 const router = useRouter();
 const loading = ref(false);
 const submitError = ref("");
+const submitSuccess = ref(false);
 const { handleSubmit, errors, meta, setErrors } = useForm({
   validationSchema: toTypedSchema(InsertLocationSchema),
 });
@@ -16,12 +17,12 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     submitError.value = "";
     loading.value = true;
-    const inserted = await $fetch("/api/locations", {
+    await useCsrfFetch("/api/locations", {
       method: "post",
       body: values,
     });
-    // eslint-disable-next-line no-console
-    console.log("Location added successfully:", inserted);
+    submitSuccess.value = true;
+    navigateTo("/dashboard");
   }
   catch (e) {
     const error = e as FetchError;
@@ -34,7 +35,7 @@ const onSubmit = handleSubmit(async (values) => {
   loading.value = false;
 });
 onBeforeRouteLeave(() => {
-  if (meta.value.dirty) {
+  if (!submitSuccess.value && meta.value.dirty) {
     // eslint-disable-next-line no-alert
     const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
     if (!confirmLeave) {
