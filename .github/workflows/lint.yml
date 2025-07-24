@@ -28,4 +28,9 @@ jobs:
         with:
           node-version: 22.x
       - run: pnpm install
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - run: pnpm lint
