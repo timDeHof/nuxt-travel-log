@@ -1,6 +1,13 @@
-import db from "~/lib/db";
-import { InsertLocationSchema, location } from "~/lib/db/schema";
+import type { DrizzleError } from "drizzle-orm";
 
+import { and, eq } from "drizzle-orm";
+import { customAlphabet } from "nanoid";
+import slugify from "slug";
+
+import db from "~/lib/db";
+import { InsertLocation, location } from "~/lib/db/schema";
+
+const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 5);
 export default defineEventHandler(async (event) => {
   if (!event.context.user) {
     return sendError(event, createError({
@@ -9,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }));
   }
 
-  const result = await readValidatedBody(event, InsertLocationSchema.safeParse);
+  const result = await readValidatedBody(event, InsertLocation.safeParse);
 
   if (!result.success) {
     const statusMessage = result
@@ -31,10 +38,55 @@ export default defineEventHandler(async (event) => {
       data,
     }));
   }
-  const [created] = await db.insert(location).values({
-    ...result.data,
-    userId: event.context.user.id,
-    slug: result.data.name.toLowerCase().replace(/\s+/g, "-"),
-  }).returning();
-  return created;
+  const existingLocation = await db.query.location.findFirst({
+    where:
+    and(
+      eq(location.name, result.data.name),
+      eq(location.userId, event.context.user.id),
+    ),
+  });
+
+  if (existingLocation) {
+    return sendError(event, createError({
+      statusCode: 409,
+      statusMessage: "A location with that name already exists. Please choose a different name.",
+    }));
+  }
+  // Generate a slug from the names
+  let slug = slugify(result.data.name);
+  // Ensure the slug is unique
+  // TODO: This could be optimized to avoid multiple queries
+  // but for now, this is simple and works.
+  let existing = !!(await db.query.location.findFirst({
+    where: eq(location.slug, slug),
+  }));
+
+  while (existing) {
+    const id = nanoid();
+    const idSlug = `${slug}-${id}`;
+    existing = !!(await db.query.location.findFirst({
+      where: eq(location.slug, idSlug),
+    }));
+    if (!existing) {
+      slug = idSlug;
+    }
+  }
+  try {
+    const [created] = await db.insert(location).values({
+      ...result.data,
+      userId: event.context.user.id,
+      slug,
+    }).returning();
+    return created;
+  }
+  catch (e) {
+    const error = e as DrizzleError;
+    if (error.message.includes("Failed query")) {
+      return sendError(event, createError({
+        statusCode: 409,
+        statusMessage: "Slug must be unique (the location name is used to generate the slug).",
+      }));
+    }
+    throw error;
+  }
 });
