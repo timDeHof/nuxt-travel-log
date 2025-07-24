@@ -12,6 +12,7 @@ export const useAuthStore = defineStore("useAuthStore", () => {
   }
   const user = computed(() => session.value?.data?.user);
   const loading = computed(() => session.value?.isPending);
+
   async function signIn() {
     const { csrf } = useCsrf();
     const headers = new Headers();

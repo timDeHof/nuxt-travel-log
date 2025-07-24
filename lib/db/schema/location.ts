@@ -1,4 +1,6 @@
-import { int, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import type { z } from "zod";
+
+import { int, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 
 import { user } from "./auth";
@@ -13,9 +15,9 @@ export const location = sqliteTable("location", {
   userId: int().notNull().references(() => user.id),
   created_at: int().notNull().$default(() => Date.now()),
   updated_at: int().notNull().$default(() => Date.now()).$onUpdate(() => Date.now()),
-});
+}, t => [unique().on(t.name, t.userId)]);
 
-export const InsertLocationSchema = createInsertSchema(location, {
+export const InsertLocation = createInsertSchema(location, {
   name: field => field.min(1).max(100),
   description: field => field.max(1000),
   lat: field => field.min(-90).max(90),
@@ -27,3 +29,5 @@ export const InsertLocationSchema = createInsertSchema(location, {
   created_at: true,
   updated_at: true,
 });
+
+export type InsertLocation = z.infer<typeof InsertLocation>;

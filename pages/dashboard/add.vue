@@ -4,20 +4,21 @@ import type { FetchError } from "ofetch";
 import { toTypedSchema } from "@vee-validate/zod";
 import { AppFormField } from "#components";
 
-import { InsertLocationSchema } from "~/lib/db/schema";
+import { InsertLocation } from "~/lib/db/schema";
 
+const { $csrfFetch } = useNuxtApp();
 const router = useRouter();
 const loading = ref(false);
 const submitError = ref("");
 const submitSuccess = ref(false);
 const { handleSubmit, errors, meta, setErrors } = useForm({
-  validationSchema: toTypedSchema(InsertLocationSchema),
+  validationSchema: toTypedSchema(InsertLocation),
 });
 const onSubmit = handleSubmit(async (values) => {
   try {
     submitError.value = "";
     loading.value = true;
-    await useCsrfFetch("/api/locations", {
+    await $csrfFetch("/api/locations", {
       method: "post",
       body: values,
     });
@@ -32,7 +33,9 @@ const onSubmit = handleSubmit(async (values) => {
     }
     submitError.value = error.statusMessage || "An unknown error occurred.";
   }
-  loading.value = false;
+  finally {
+    loading.value = false;
+  }
 });
 onBeforeRouteLeave(() => {
   if (!submitSuccess.value && meta.value.dirty) {
@@ -42,7 +45,7 @@ onBeforeRouteLeave(() => {
       return false; // Prevent navigation
     }
   }
-  return true; // Allow navigationss
+  return true; // Allow navigation
 });
 </script>
 
