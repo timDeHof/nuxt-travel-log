@@ -46,7 +46,10 @@ export default defineEventHandler(async (event) => {
   // Generate a slug from the names
   const slug = await findUniqueSlug(slugify(result.data.name));
   if (!slug) {
-    throw new Error("Failed to generate unique slug");
+    return sendError(event, createError({
+      statusCode: 422,
+      statusMessage: "Could not generate a unique slug for the location.",
+    }));
   }
 
   try {
@@ -57,12 +60,7 @@ export default defineEventHandler(async (event) => {
     if (error.message.includes("Failed query")) {
       return sendError(event, createError({
         statusCode: 409,
-        statusMessage: "Slug must be unique (the location name is used to generate the slug).",
-      }));
-    }
-    else if (error.message.includes("Failed to generate unique slug")) {
-      return sendError(event, createError({
-        statusCode: 422,
+
         statusMessage: "Could not generate a unique slug for the location.",
       }));
     }

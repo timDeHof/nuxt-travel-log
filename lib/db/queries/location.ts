@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 
 import type { InsertLocation } from "~/lib/db/schema";
@@ -25,17 +25,28 @@ export async function findLocationBySlug(slug: string) {
 // TODO: This could be optimized to avoid multiple queries
 // but for now, this is simple and works.
 export async function findUniqueSlug(slug: string) {
-  let existing = !!(await findLocationBySlug(slug));
+  // Get all existing slugs with the same prefix in one query
+  const existingSlugs = await db.query.location.findMany({
+    where: like(location.slug, `${slug}%`),
+    columns: { slug: true },
+  }).then(results => new Set(results.map(r => r.slug)));
 
-  while (existing) {
-    const id = nanoid();
-    const idSlug = `${slug}-${id}`;
-    existing = !!(await findLocationBySlug(idSlug));
-    if (!existing) {
-      return idSlug;
-    }
+  if (!existingSlugs.has(slug)) {
+    return slug;
   }
-  return slug;
+
+  // Generate unique suffix
+  let attempts = 0;
+  while (attempts < 100) { // Prevent infinite loop
+    const id = nanoid();
+    const candidate = `${slug}-${id}`;
+    if (!existingSlugs.has(candidate)) {
+      return candidate;
+    }
+    attempts++;
+  }
+
+  throw new Error("Unable to generate unique slug");
 }
 
 export async function insertLocation(insertable: InsertLocation, slug: string, userId: number) {
