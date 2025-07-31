@@ -7,8 +7,9 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
-    environment: build
+    environment: Build
     env:
       NODE_ENV: development
       TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
@@ -28,9 +29,4 @@ jobs:
         with:
           node-version: 22.x
       - run: pnpm install
-  lint:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - run: pnpm lint

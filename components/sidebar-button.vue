@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  to: string;
+  href: string;
   icon: string;
   label: string;
   showLabel: boolean;
@@ -16,8 +16,8 @@ const route = useRoute();
     :class="{ tooltip: !showLabel }"
   >
     <NuxtLink
-      :to="props.to"
-      :class="{ 'bg-base-200': route.path === props.to, 'justify-center': !props.showLabel, 'justify-start': props.showLabel }"
+      :to="props.href"
+      :class="{ 'bg-base-200': route.path === props.href, 'justify-center': !props.showLabel, 'justify-start': props.showLabel }"
       class="flex gap-2 p-2 hover:bg-base-300 hover:cursor-pointer flex-nowrap"
     >
       <Icon :name="props.icon" size="24" />
