@@ -1,4 +1,4 @@
-export const useLocationsStore = defineStore("useLocationStore", () => {
+export const useLocationsStore = defineStore("useLocationsStore", () => {
   const { data, status, refresh } = useFetch("/api/locations", {
     lazy: true,
   });
