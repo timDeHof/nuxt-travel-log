@@ -1,0 +1,21 @@
+<script lang="ts" setup>
+import { CENTER_USA } from "~/lib/constant";
+
+const colorMode = useColorMode();
+// const style = "https://tiles.openfreemap.org/styles/liberty";
+const style = computed(() =>
+  colorMode.value === "dark"
+    ? "/styles/dark.json"
+    : "https://tiles.openfreemap.org/styles/liberty");
+const zoom = 3;
+</script>
+
+<template>
+  <MglMap
+    :map-style="style"
+    :center="CENTER_USA"
+    :zoom="zoom"
+  >
+    <MglNavigationControl />
+  </MglMap>
+</template>

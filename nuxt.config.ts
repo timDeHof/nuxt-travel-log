@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@pinia/nuxt',
     '@vee-validate/nuxt',
-    'nuxt-csurf'
+    'nuxt-csurf',
+    'nuxt-maplibre',
   ],
   devtools: { enabled: true },
   compatibilityDate: '2024-11-01',
@@ -22,7 +23,14 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       tailwindcss(),
-    ]
+    ],
+    optimizeDeps: {
+      include: [
+        'maplibre-gl',
+        'maplibre-gl-js',
+        '@maplibre/maplibre-gl-geocoder',
+      ],
+    }
   },
   colorMode: {
     dataValue: 'theme',
