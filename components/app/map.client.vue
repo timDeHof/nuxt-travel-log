@@ -5,6 +5,10 @@ import type { LngLat } from "maplibre-gl";
 import { CENTER_USA } from "~/lib/constant";
 import { useMapStore } from "~/stores/map";
 
+defineOptions({
+  inheritAttrs: false,
+});
+
 const mapStore = useMapStore();
 const colorMode = useColorMode();
 // const style = "https://tiles.openfreemap.org/styles/liberty";
@@ -33,6 +37,7 @@ onMounted(() => {
 
 <template>
   <MglMap
+    v-bind="$attrs"
     :map-style="style"
     :center="CENTER_USA"
     :zoom="zoom"
@@ -42,6 +47,7 @@ onMounted(() => {
     <MglMarker
       v-if="mapStore.addedPoint"
       draggable
+      class-name="z-50"
       :coordinates="[mapStore.addedPoint.long, mapStore.addedPoint.lat]"
       @update:coordinates="updatedAddedPoint"
     >

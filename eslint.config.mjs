@@ -39,5 +39,6 @@ export default withNuxt(antfu({
       case: "kebabCase",
       ignore: ["README.md"],
     }],
+    "unicorn/throw-new-error": ["off"]
   },
 }));
