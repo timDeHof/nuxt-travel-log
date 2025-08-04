@@ -4,8 +4,11 @@ import type { FetchError } from "ofetch";
 import { toTypedSchema } from "@vee-validate/zod";
 import { AppFormField } from "#components";
 
+import type { NominatimResult } from "~/lib/types";
+
 import { CENTER_USA } from "~/lib/constant";
 import { InsertLocation } from "~/lib/db/schema";
+import { GetFetchErrorMessage } from "~/utils/get-fetch-error-message";
 
 const { $csrfFetch } = useNuxtApp();
 const router = useRouter();
@@ -44,12 +47,23 @@ const onSubmit = handleSubmit(async (values) => {
       // If the error response contains validation errors, set them
       setErrors(error.data.data);
     }
-    submitError.value = error.data?.statusMessage || error.statusMessage || "An unknown error occurred.";
+    submitError.value = GetFetchErrorMessage(error);
   }
   finally {
     loading.value = false;
   }
 });
+function searchResultedSelected(result: NominatimResult) {
+  setFieldValue("name", result.display_name);
+  mapStore.addedPoint = {
+    long: Number(result.lon),
+    lat: Number(result.lat),
+    description: "",
+    name: result.name,
+    id: result.place_id,
+    centerMap: true,
+  };
+}
 
 effect(() => {
   if (mapStore.addedPoint) {
@@ -67,16 +81,17 @@ onMounted(() => {
     id: 1,
   };
 });
-onBeforeRouteLeave(() => {
+onBeforeRouteLeave((to, from, next) => {
   if (!submitSuccess.value && meta.value.dirty) {
     // eslint-disable-next-line no-alert
     const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
     if (!confirmLeave) {
-      return false; // Prevent navigation
+      next(false); // Prevent navigation
+      return;
     }
   }
   mapStore.addedPoint = null;
-  return true; // Allow navigation
+  next(); // Allow navigation
 });
 </script>
 
@@ -128,18 +143,24 @@ onBeforeRouteLeave(() => {
         label="Description"
         :error="errors.description"
       />
-      <p>
-        Drag the <Icon
-          name="tabler:map-pin-filled"
-          class="text-warning"
-        /> marker to your desired location.
-      </p>
-      <p>
-        Or double click on the map.
-      </p>
       <p class="text-xs text-gray-400">
-        Current Location: {{ formatNumber(controlledValues.lat) }}, {{ formatNumber(controlledValues.long) }}
+        Current Coordinates: {{ formatNumber(controlledValues.lat) }}, {{ formatNumber(controlledValues.long) }}
       </p>
+      <p>To Set your Coordinates:</p>
+      <ol class="list-disc ml-4 text-sm">
+        <li>
+          Drag the <Icon
+            name="tabler:map-pin-filled"
+            class="text-warning"
+          /> marker on the map..
+        </li>
+        <li>
+          Double click the map.
+        </li>
+        <li>
+          Search for the desired location below.
+        </li>
+      </ol>
       <div class="flex justify-end gap-2">
         <button
           type="button"
@@ -167,6 +188,10 @@ onBeforeRouteLeave(() => {
           />
         </button>
       </div>
+
+      <div class="divider flex-1" />
+
+      <AppPlaceSearch @result-selected="searchResultedSelected" />
     </form>
   </div>
 </template>
