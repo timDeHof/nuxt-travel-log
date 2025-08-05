@@ -22,15 +22,22 @@ export const useMapStore = defineStore("useMapStore", () => {
       bounds = mapPoints.value.reduce((bounds, point) => {
         return bounds.extend([point.long, point.lat]);
       }, new LngLatBounds([firstPoint.long, firstPoint.lat], [firstPoint.long, firstPoint.lat]));
-      map.map?.fitBounds(bounds, { padding });
+      map.map?.fitBounds(bounds, {
+        padding,
+        maxZoom: 10,
+      });
     });
 
     watch(addedPoint, (newValue, oldValue) => {
       if ((newValue && !oldValue) || newValue?.centerMap) {
         map.map?.flyTo({
           center: [newValue.long, newValue.lat],
-          speed: 0.8,
-          zoom: 6,
+          speed: 0.2,
+          curve: 1,
+          easing(t) {
+            return t;
+          },
+          essential: true,
         });
       }
     }, {
