@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 const locationsStore = useLocationsStore();
-const { locations, status } = storeToRefs(locationsStore);
+const { locations, locationsStatus: status } = storeToRefs(locationsStore);
 const mapStore = useMapStore();
 onMounted(() => {
-  locationsStore.refresh();
+  locationsStore.refreshLocations();
 });
 </script>
 

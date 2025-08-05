@@ -10,12 +10,13 @@ export type SidebarItem = {
   to?: RouteLocationRaw;
   mapPoint?: MapPoint | null;
 };
-
 export const useSidebarStore = defineStore("useSidebarStore", () => {
   const sidebarItems = ref<SidebarItem[]>([]);
+  const SidebarTopItems = ref<SidebarItem[]> ([]);
   const loading = ref(false);
   return {
     sidebarItems,
+    SidebarTopItems,
     loading,
   };
 });
