@@ -1,19 +1,10 @@
 import type { SelectLocationWithLogs } from "~/lib/db/schema";
 import type { MapPoint } from "~/lib/types";
 
+import { CURRENT_LOCATION_PAGES, LOCATION_PAGES } from "~/lib/constant";
 import { createMapPointFromLocation } from "~/utils/map-points";
 
 import type { SidebarItem } from "./sidebar";
-
-const listLocationsInSidebar = new Set([
-  "dashboard",
-  "dashboard-add",
-]);
-const listCurrentLocationLogsInSidebar = new Set([
-  "dashboard-location-slug",
-  "dashboard-location-slug-add",
-  "dashboard-location-slug-edit",
-]);
 
 export const useLocationsStore = defineStore("useLocationsStore", () => {
   const route = useRoute();
@@ -39,7 +30,7 @@ export const useLocationsStore = defineStore("useLocationsStore", () => {
   const mapStore = useMapStore();
 
   effect(() => {
-    if (locations.value && listLocationsInSidebar.has(route.name?.toString() || "")) {
+    if (locations.value && LOCATION_PAGES.has(route.name?.toString() || "")) {
       const mapPoints: MapPoint[] = [];
       const SidebarItems: SidebarItem[] = [];
       locations.value.forEach((location) => {
@@ -57,7 +48,7 @@ export const useLocationsStore = defineStore("useLocationsStore", () => {
       sidebarStore.sidebarItems = SidebarItems;
       mapStore.mapPoints = mapPoints;
     }
-    else if (currentLocation.value && listCurrentLocationLogsInSidebar.has(route.name?.toString() || "")) {
+    else if (currentLocation.value && CURRENT_LOCATION_PAGES.has(route.name?.toString() || "")) {
       sidebarStore.sidebarItems = [];
       mapStore.mapPoints = [currentLocation.value];
     }
